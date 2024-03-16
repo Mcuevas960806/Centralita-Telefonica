@@ -1,109 +1,128 @@
-import java.util.ArrayList;
-import java.util.List;
+using System;
 
-class Llamada {
-    private String numeroOrigen;
-    private String numeroDestino;
-    private int duracionSegundos;
+// CLASE CENTRALITA
+public class Centralita
+{
+    private int totalLlamadas;
+    private double costeTotal;
 
-    public Llamada(String numeroOrigen, String numeroDestino, int duracionSegundos) {
-        this.numeroOrigen = numeroOrigen;
-        this.numeroDestino = numeroDestino;
-        this.duracionSegundos = duracionSegundos;
+    public Centralita()
+    {
+        totalLlamadas = 0;
+        costeTotal = 0;
     }
 
-    public int calcularCosto() {
-        // Costo de llamadas locales: 15 céntimos por segundo
-        // Costo de llamadas provinciales según franja horaria
-        // Franja 1: 20 céntimos por segundo
-        // Franja 2: 25 céntimos por segundo
-        // Franja 3: 30 céntimos por segundo
-        if (esLlamadaLocal()) {
-            return duracionSegundos * 15;
-        } else {
-            return calcularCostoProvincial();
-        }
+    public int ObtenerTotalLlamadas()
+    {
+        return totalLlamadas;
     }
 
-    private boolean esLlamadaLocal() {
-        // Implementa la lógica para determinar si es una llamada local
-        // (por ejemplo, basado en el código de área o prefijo).
-        // Aquí asumimos que todas las llamadas son provinciales.
-        return false;
+    public double ObtenerCosteTotalLlamadas()
+    {
+        return costeTotal;
     }
 
-    private int calcularCostoProvincial() {
-        // Implementa la lógica para calcular el costo de llamadas provinciales
-        // según la franja horaria.
-        // Aquí asumimos que todas las llamadas son de franja 1.
-        return duracionSegundos * 20;
+    public void RegistrarLlamada(LLamada llamada)
+    {
+        totalLlamadas++;
+        costeTotal += llamada.CalcularCosteLlamada();
+    }
+
+    public void ImprimirInforme()
+    {
+        Console.WriteLine("El número total de llamadas es: " + totalLlamadas + " y el coste total es: " + costeTotal);
     }
 }
 
-class LlamadaProvincial extends Llamada {
+// CLASE LLAMADA
+public abstract class LLamada
+{
+    protected string numeroOrigen;
+    protected string numeroDestino;
+    protected int duracion;
+
+    public LLamada(string origen, string destino, int duracion)
+    {
+        numeroOrigen = origen;
+        numeroDestino = destino;
+        this.duracion = duracion;
+    }
+
+    public int ObtenerDuracion()
+    {
+        return duracion;
+    }
+
+    public abstract double CalcularCosteLlamada();
+}
+
+// CLASE LLAMADA LOCAL
+public class LLamadaLocal : LLamada
+{
+    private double costePorMinuto;
+
+    public LLamadaLocal(string origen, string destino, int duracion) : base(origen, destino, duracion)
+    {
+        costePorMinuto = 0.15;
+    }
+
+    public override double CalcularCosteLlamada()
+    {
+        return costePorMinuto * ObtenerDuracion();
+    }
+}
+
+// CLASE LLAMADA PROVINCIAL
+public class LLamadaProvincial : LLamada
+{
+    private double costePorMinuto;
     private int franjaHoraria;
 
-    public LlamadaProvincial(String numeroOrigen, String numeroDestino, int duracionSegundos, int franjaHoraria) {
-        super(numeroOrigen, numeroDestino, duracionSegundos);
+    public LLamadaProvincial(string origen, string destino, int duracion, int franjaHoraria) : base(origen, destino, duracion)
+    {
         this.franjaHoraria = franjaHoraria;
+        switch (franjaHoraria)
+        {
+            case 1:
+                costePorMinuto = 0.20;
+                break;
+            case 2:
+                costePorMinuto = 0.25;
+                break;
+            case 3:
+                costePorMinuto = 0.30;
+                break;
+            default:
+                costePorMinuto = 0.20; // Asignación por defecto
+                break;
+        }
     }
 
-    @Override
-    public int calcularCosto() {
-        // Implementa el cálculo del costo para llamadas provinciales
-        // según la franja horaria (20, 25 o 30 céntimos por segundo).
-        // Utiliza el valor de 'franjaHoraria'.
-        // Aquí asumimos que todas las llamadas son de franja 1.
-        return super.calcularCosto();
+    public override double CalcularCosteLlamada()
+    {
+        return costePorMinuto * ObtenerDuracion();
     }
 }
 
-class Centralita {
-    private List<Llamada> llamadas;
-
-    public Centralita() {
-        llamadas = new ArrayList<>();
-    }
-
-    public void registrarLlamada(Llamada llamada) {
-        llamadas.add(llamada);
-    }
-
-    public int obtenerNumeroTotalLlamadas() {
-        return llamadas.size();
-    }
-
-    public int obtenerFacturacionTotal() {
-        int facturacionTotal = 0;
-        for (Llamada llamada : llamadas) {
-            facturacionTotal += llamada.calcularCosto();
-        }
-        return facturacionTotal;
-    }
-
-    public void mostrarLlamadasRegistradas() {
-        System.out.println("Llamadas registradas:");
-        for (Llamada llamada : llamadas) {
-            System.out.println("Origen: " + llamada.getNumeroOrigen() +
-                    ", Destino: " + llamada.getNumeroDestino() +
-                    ", Duración: " + llamada.getDuracionSegundos() + " segundos");
-        }
-    }
-}
-
-public class Practica2 {
-    public static void main(String[] args) {
+// CLASE PRINCIPAL
+public class Program
+{
+    public static void Main(string[] args)
+    {
         Centralita centralita = new Centralita();
-
-        // Registra algunas llamadas de ejemplo (puedes agregar más)
-        centralita.registrarLlamada(new LlamadaProvincial("123", "456", 60, 1));
-        centralita.registrarLlamada(new LlamadaProvincial("789", "987", 120, 2));
-
-        // Informe
-        System.out.println("Número total de llamadas: " + centralita.obtenerNumeroTotalLlamadas());
-        System.out.println("Facturación total realizada: " + centralita.obtenerFacturacionTotal() + " céntimos");
-
-        // Muestra las llamadas registradas
-        centralita.mostrarLlamadasRegistradas();
+        LLamadaLocal local1 = new LLamadaLocal("8091234567", "8299876543", 10);
+        LLamadaLocal local2 = new LLamadaLocal("8092345678", "8298765432", 10);
+        LLamadaLocal local3 = new LLamadaLocal("8093456789", "8297654321", 10);
+        LLamadaProvincial prov1 = new LLamadaProvincial("8094567890", "8296543210", 3, 1);
+        LLamadaProvincial prov2 = new LLamadaProvincial("8095678901", "8295432109", 2, 2);
+        LLamadaProvincial prov3 = new LLamadaProvincial("8096789012", "8294321098", 5, 3);
+        centralita.RegistrarLlamada(local1);
+        centralita.RegistrarLlamada(prov1);
+        centralita.RegistrarLlamada(local2);
+        centralita.RegistrarLlamada(prov2);
+        centralita.RegistrarLlamada(local3);
+        centralita.RegistrarLlamada(prov3);
+        centralita.ImprimirInforme();
     }
 }
+
