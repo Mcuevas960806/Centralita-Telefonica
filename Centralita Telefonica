@@ -1,0 +1,109 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Llamada {
+    private String numeroOrigen;
+    private String numeroDestino;
+    private int duracionSegundos;
+
+    public Llamada(String numeroOrigen, String numeroDestino, int duracionSegundos) {
+        this.numeroOrigen = numeroOrigen;
+        this.numeroDestino = numeroDestino;
+        this.duracionSegundos = duracionSegundos;
+    }
+
+    public int calcularCosto() {
+        // Costo de llamadas locales: 15 céntimos por segundo
+        // Costo de llamadas provinciales según franja horaria
+        // Franja 1: 20 céntimos por segundo
+        // Franja 2: 25 céntimos por segundo
+        // Franja 3: 30 céntimos por segundo
+        if (esLlamadaLocal()) {
+            return duracionSegundos * 15;
+        } else {
+            return calcularCostoProvincial();
+        }
+    }
+
+    private boolean esLlamadaLocal() {
+        // Implementa la lógica para determinar si es una llamada local
+        // (por ejemplo, basado en el código de área o prefijo).
+        // Aquí asumimos que todas las llamadas son provinciales.
+        return false;
+    }
+
+    private int calcularCostoProvincial() {
+        // Implementa la lógica para calcular el costo de llamadas provinciales
+        // según la franja horaria.
+        // Aquí asumimos que todas las llamadas son de franja 1.
+        return duracionSegundos * 20;
+    }
+}
+
+class LlamadaProvincial extends Llamada {
+    private int franjaHoraria;
+
+    public LlamadaProvincial(String numeroOrigen, String numeroDestino, int duracionSegundos, int franjaHoraria) {
+        super(numeroOrigen, numeroDestino, duracionSegundos);
+        this.franjaHoraria = franjaHoraria;
+    }
+
+    @Override
+    public int calcularCosto() {
+        // Implementa el cálculo del costo para llamadas provinciales
+        // según la franja horaria (20, 25 o 30 céntimos por segundo).
+        // Utiliza el valor de 'franjaHoraria'.
+        // Aquí asumimos que todas las llamadas son de franja 1.
+        return super.calcularCosto();
+    }
+}
+
+class Centralita {
+    private List<Llamada> llamadas;
+
+    public Centralita() {
+        llamadas = new ArrayList<>();
+    }
+
+    public void registrarLlamada(Llamada llamada) {
+        llamadas.add(llamada);
+    }
+
+    public int obtenerNumeroTotalLlamadas() {
+        return llamadas.size();
+    }
+
+    public int obtenerFacturacionTotal() {
+        int facturacionTotal = 0;
+        for (Llamada llamada : llamadas) {
+            facturacionTotal += llamada.calcularCosto();
+        }
+        return facturacionTotal;
+    }
+
+    public void mostrarLlamadasRegistradas() {
+        System.out.println("Llamadas registradas:");
+        for (Llamada llamada : llamadas) {
+            System.out.println("Origen: " + llamada.getNumeroOrigen() +
+                    ", Destino: " + llamada.getNumeroDestino() +
+                    ", Duración: " + llamada.getDuracionSegundos() + " segundos");
+        }
+    }
+}
+
+public class Practica2 {
+    public static void main(String[] args) {
+        Centralita centralita = new Centralita();
+
+        // Registra algunas llamadas de ejemplo (puedes agregar más)
+        centralita.registrarLlamada(new LlamadaProvincial("123", "456", 60, 1));
+        centralita.registrarLlamada(new LlamadaProvincial("789", "987", 120, 2));
+
+        // Informe
+        System.out.println("Número total de llamadas: " + centralita.obtenerNumeroTotalLlamadas());
+        System.out.println("Facturación total realizada: " + centralita.obtenerFacturacionTotal() + " céntimos");
+
+        // Muestra las llamadas registradas
+        centralita.mostrarLlamadasRegistradas();
+    }
+}
